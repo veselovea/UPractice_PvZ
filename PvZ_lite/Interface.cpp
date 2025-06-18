@@ -1,6 +1,9 @@
+
 #include <iostream>
 #include <string>
+#include <vector>
 #include "Utilities.h"
+#include "Entities.h"
 
 #define home() 			printf(ESC "[H") //Move cursor to the indicated row, column (origin at 1,1)
 #define clrscr()		printf(ESC "[2J") //lear the screen, move to (1,1)
@@ -18,47 +21,55 @@
 
 
 */
+int _house_offset = 6;
+int _game_zone_length;
+int _zombie_place_offset = 20;
+int _line_length;
 
-void drawMap(int rows, int columns) {
-	const char ascii_uppercase[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	const int ascii_uppercase_length = 27;
-	if (columns > ascii_uppercase_length) {
-		columns = ascii_uppercase_length;
-	}
+int _rows, _columns, _lastLineY;
 
-	const int house_offset = 6;
-	const int game_zone_length = columns * 2;
-	const int zombie_place_offset = 20;
-	int line_length = house_offset + game_zone_length + zombie_place_offset;
-	
+const char _ascii_uppercase[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const int _ascii_uppercase_length = 27;
 
-	gotoxy(house_offset, 1);
+void writeColumns(int columns, int y) {
+	gotoxy(_house_offset, y);
 	for (int i = 0; i < columns; i++)
 	{
-		char sym = ascii_uppercase[i];
+		char sym = _ascii_uppercase[i];
 		printf("|%c", sym);
 		if (i + 1 == columns) {
 			printf("|");
 		}
 	}
+}
+
+void DrawMap(int rows, int columns) {
+	if (columns > _ascii_uppercase_length) {
+		columns = _ascii_uppercase_length;
+	}
+
+	_rows = rows;
+	_columns = columns;
+
+	_game_zone_length = columns * 2;
+	_line_length = _house_offset + _game_zone_length + _zombie_place_offset;
+
+	writeColumns(columns, 1);
 
 	int next_line_y = 2;
+	std::string line(_line_length, '-');
 	for (int i = 0; i < rows; i++)
 	{
-		std::string line(line_length, '-');
-
 		if (i == 0) {
 			gotoxy(1, next_line_y);
 			std::cout << line;
 		}
 
-		gotoxy(house_offset, next_line_y + 1);
-		set_display_atrib(B_GREEN);
-		printf("|");
-		resetcolor();
+		gotoxy(2, next_line_y + 1);
+		printf("%d", i + 1);
 
-		gotoxy(house_offset + game_zone_length, next_line_y + 1);
-		set_display_atrib(B_RED);
+		gotoxy(_house_offset, next_line_y + 1);
+		set_display_atrib(B_GREEN);
 		printf("|");
 		resetcolor();
 
@@ -68,18 +79,60 @@ void drawMap(int rows, int columns) {
 		next_line_y += 2;
 	}
 
-	gotoxy(house_offset, next_line_y + 1);
-	for (int i = 0; i < columns; i++)
-	{
-		char sym = ascii_uppercase[i];
-		printf("|%c", sym);
-		if (i + 1 == columns) {
-			printf("|");
-		}
-	}
+	writeColumns(columns, next_line_y + 1);
+	_lastLineY = next_line_y + 1;
+
+	gotoxy(1, _lastLineY + 2);
 }
 
-int start() {
+void RefreshMap(std::vector<Entity*> entities) {
+	clrscr();
+
+	writeColumns(_columns, 1);
+	std::string line(_line_length, '-');
+	Home* home;
+
+	for (auto& ent : entities)
+	{
+		gotoxy(ent->X, ent->Y);
+
+		switch (ent->type)
+		{
+		case EntityType::HOME:
+			home = dynamic_cast<Home*>(ent);
+
+			set_display_atrib(B_GREEN);
+			printf("|");
+			resetcolor();
+
+			gotoxy(1, ent->Y);
+			std::cout << home->lineNumber;
+
+			gotoxy(1, ent->Y - 1);
+			std::cout << line;
+
+			gotoxy(1, ent->Y + 1);
+			std::cout << line;
+
+			break;
+
+		case EntityType::ZOMBIE:
+			set_display_atrib(B_BLUE);
+			printf("Z");
+			resetcolor();
+			break;
+
+		case EntityType::PLANT:
+			printf("1");
+			break;
+		}
+	}
+
+	writeColumns(_columns, _lastLineY);
+	gotoxy(1, _lastLineY + 2);
+}
+
+int _Start() {
 	/*gotoxy(4, 1);
 	printf("|A|B|C|D|E\n");
 	printf("------------------------------------------------------");
@@ -95,10 +148,8 @@ int start() {
 	gotoxy(1, 4);
 	printf("------------------------------------------------------");*/
 
-	drawMap(5, 10);
+	DrawMap(3, 10);
 
-	char k;
-	std::cin >> k;
 	return 1;
 }
 
