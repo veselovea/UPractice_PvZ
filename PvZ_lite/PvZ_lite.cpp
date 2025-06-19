@@ -1,6 +1,6 @@
-﻿void Start(int rows, int columns, int house_offset, int FLy, int linelength);
+﻿void DrawMap(int rows, int columns);
 
 int main(void) {
-	Start(1, 7, 6, 3, 40);
+	DrawMap(1, 10);
 	return 0;
 }

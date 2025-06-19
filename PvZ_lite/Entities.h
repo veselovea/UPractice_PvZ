@@ -26,8 +26,8 @@ struct Entity {
 
 struct Home : public Entity
 {
-    int lineNumber;
-    Home(int x, int y, int lineNubmer) {
+    int LineNumber;
+    Home(int x, int y, int lineNubmer) : LineNumber(lineNubmer) {
         this->type = EntityType::HOME;
         this->X = x;
         this->Y = y;
@@ -56,7 +56,7 @@ struct Zombe : public Entity
 // Снаряд ( в полёте уже который, если будем их рисовать, конечно)
 struct Missile : public Entity {
 
-    int Damage; // Урок или какой снаряд метать
+    int Damage; // Урон или какой снаряд метать
     Missile(int x, int y, int damage) : Damage(damage)
     {
         this->type = EntityType::MISSILE;
@@ -65,7 +65,7 @@ struct Missile : public Entity {
     }
     void DoDamage(Zombe* zombe)
     {
-
+        
     }
 };
 
@@ -84,10 +84,9 @@ struct Plant : public Entity {
         Health -= damage;
     };
 
-    Missile SpawnMissile(int x, int y, int damage) 
+    Missile* SpawnMissile(int x, int y, int damage) 
     {
-        Missile MissileSpawned(x, y, damage);
-        return MissileSpawned;
+        return new Missile(x, y, damage);
     };
 
 };

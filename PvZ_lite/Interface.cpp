@@ -13,6 +13,8 @@
 #define resetcolor() printf(ESC "[0m")
 #define set_display_atrib(color) 	printf(ESC "[%dm",color)
 
+void Start(int rows, int columns, int house_offset, int FLy, int linelength);
+
 /*
 
 --------------------------------------------------------------
@@ -83,6 +85,8 @@ void DrawMap(int rows, int columns) {
 	_lastLineY = next_line_y + 1;
 
 	gotoxy(1, _lastLineY + 2);
+
+	Start(rows, columns, _house_offset, 3, _line_length);
 }
 
 void RefreshMap(std::vector<Entity*> entities) {
@@ -106,7 +110,7 @@ void RefreshMap(std::vector<Entity*> entities) {
 			resetcolor();
 
 			gotoxy(1, ent->Y);
-			std::cout << home->lineNumber;
+			printf("%d", home->LineNumber);
 
 			gotoxy(1, ent->Y - 1);
 			std::cout << line;
@@ -124,6 +128,10 @@ void RefreshMap(std::vector<Entity*> entities) {
 
 		case EntityType::PLANT:
 			printf("1");
+			break;
+
+		case EntityType::MISSILE:
+			printf(">");
 			break;
 		}
 	}
